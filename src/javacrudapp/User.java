@@ -3,16 +3,17 @@ package javacrudapp;
 
 public class User {
     private int id;
+   
      private String lastName;
      private String email;
-      private String country;
+      private int age;
       
-          public User(int id, String firstName, String lastName, String email, String country ){
+          public User(int id, String firstName, String lastName, String email, int age ){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.country = country;
+        this.age = age;
     }
       
     private String firstName;
@@ -49,14 +50,13 @@ public class User {
         this.email = email;
     }
 
-    public String getCountry() {
-        return country;
+     public int getAge() {
+        return age;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setAge(int age) {
+        this.age = age;
     }
-    
    
     
 

@@ -31,7 +31,7 @@ public class CrudAppFrame extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         emailTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        countryTextField = new javax.swing.JTextField();
+        ageTextField = new javax.swing.JTextField();
         addButton = new javax.swing.JButton();
         updateButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
@@ -82,11 +82,11 @@ public class CrudAppFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Country");
+        jLabel5.setText("age");
 
-        countryTextField.addActionListener(new java.awt.event.ActionListener() {
+        ageTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                countryTextFieldActionPerformed(evt);
+                ageTextFieldActionPerformed(evt);
             }
         });
 
@@ -166,7 +166,7 @@ public class CrudAppFrame extends javax.swing.JFrame {
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(countryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(ageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -194,7 +194,7 @@ public class CrudAppFrame extends javax.swing.JFrame {
                         .addGap(3, 3, 3)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(countryTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(ageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -237,9 +237,9 @@ public class CrudAppFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_emailTextFieldActionPerformed
 
-    private void countryTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_countryTextFieldActionPerformed
+    private void ageTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ageTextFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_countryTextFieldActionPerformed
+    }//GEN-LAST:event_ageTextFieldActionPerformed
 
     private void loadUserData() throws SQLException {
         UserDAO userDAO = new UserDAO();
@@ -252,10 +252,11 @@ public class CrudAppFrame extends javax.swing.JFrame {
             data[i][1] = users.get(i).getFirstName();
             data[i][2] = users.get(i).getLastName();
             data[i][3] = users.get(i).getEmail();
-            data[i][4] = users.get(i).getCountry();
+            data[i][4] = String.valueOf(users.get(i).getAge());
+
         }
 
-        String[] columnNames = {"ID", "First Name", "Last Name", "Email", "Country"};
+        String[] columnNames = {"ID", "First Name", "Last Name", "Email", "Age"};
 
         // ⚡ CORRECTION ICI : DefaultTableModel avec D majuscule
         usersTable.setModel(new DefaultTableModel(data, columnNames));
@@ -265,72 +266,93 @@ public class CrudAppFrame extends javax.swing.JFrame {
         firstnameTextField.setText("");
         lastNameTextField.setText("");
         emailTextField.setText("");
-        countryTextField.setText("");
+        ageTextField.setText("");
 
     }
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
 
+        // Récupération des champs
         String fn = firstnameTextField.getText();
         String ln = lastNameTextField.getText();
         String email = emailTextField.getText();
-        String country = countryTextField.getText();
 
-        if (fn.isEmpty() || fn.isEmpty() || fn.isEmpty() || fn.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "pls fill the text area ", "input Error", JOptionPane.ERROR_MESSAGE);
-
-        } else {
-
-            User newUser = new User(0, fn, ln, email, country);
-
-            try {
-                UserDAO userDao = new UserDAO();
-                userDao.insertUser(newUser);  // juste ça, pas de int res
-
-                JOptionPane.showMessageDialog(this, "User created successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                this.clearForm();
-                loadUserData();
-
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error occurred while inserting", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
+// Vérification et conversion de l'âge
+        int age = 0;
+        try {
+            age = Integer.parseInt(ageTextField.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "L'âge doit être un nombre valide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return; // stop si erreur
         }
+
+// Vérification que tous les champs sont remplis
+        if (fn.isEmpty() || ln.isEmpty() || email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            User newUser = new User(0, fn, ln, email, age); // id=0 pour nouvel utilisateur
+            UserDAO userDao = new UserDAO();
+            userDao.insertUser(newUser);
+
+            JOptionPane.showMessageDialog(this, "Utilisateur ajouté avec succès ✅", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            this.clearForm();   // vide les champs
+            loadUserData();     // rafraîchit le tableau
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erreur lors de l'ajout dans la base", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+
+
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
         // update
 
-        // Récupération des champs
+      // Récupération des champs
 String fn = firstnameTextField.getText().trim();
 String ln = lastNameTextField.getText().trim();
 String email = emailTextField.getText().trim();
-String country = countryTextField.getText().trim();
 
-        if (fn.isEmpty() || ln.isEmpty() || email.isEmpty() || country.isEmpty()) {
+// Vérification que tous les champs sont remplis
+if(fn.isEmpty() || ln.isEmpty() || email.isEmpty() || ageTextField.getText().trim().isEmpty()) {
     JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs", "Erreur de saisie", JOptionPane.ERROR_MESSAGE);
-} else {
-             if (selectedUserId != -1) {
-        User updatedUser = new User(selectedUserId, fn, ln, email, country);
+    return;
+}
 
-        try {
-            UserDAO userDao = new UserDAO();
-            userDao.updateUser(updatedUser);  // mise à jour
+// Conversion sécurisée de l'âge
+int age = 0;
+try {
+    age = Integer.parseInt(ageTextField.getText().trim());
+} catch (NumberFormatException e) {
+    JOptionPane.showMessageDialog(this, "L'âge doit être un nombre valide", "Erreur", JOptionPane.ERROR_MESSAGE);
+    return; // stop si erreur
+}
 
-            JOptionPane.showMessageDialog(this, "Utilisateur mis à jour avec succès ✅", "Succès", JOptionPane.INFORMATION_MESSAGE);
-            
-            this.clearForm();   // vider les champs
-            loadUserData();     // rafraîchir le tableau
-            selectedUserId = -1; // réinitialiser la sélection
+if (selectedUserId != -1) {
+    User updatedUser = new User(selectedUserId, fn, ln, email, age);
 
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors de la mise à jour ❌", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
-            } else {
-        JOptionPane.showMessageDialog(this, "Aucun utilisateur sélectionné pour la mise à jour", "Erreur", JOptionPane.ERROR_MESSAGE);
+    try {
+        UserDAO userDao = new UserDAO();
+        userDao.updateUser(updatedUser);  // mise à jour
+
+        JOptionPane.showMessageDialog(this, "Utilisateur mis à jour avec succès ✅", "Succès", JOptionPane.INFORMATION_MESSAGE);
+
+        this.clearForm();   // vider les champs
+        loadUserData();     // rafraîchir le tableau
+        selectedUserId = -1; // réinitialiser la sélection
+
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Erreur lors de la mise à jour ❌", "Erreur", JOptionPane.ERROR_MESSAGE);
     }
-        }
+} else {
+    JOptionPane.showMessageDialog(this, "Aucun utilisateur sélectionné pour la mise à jour", "Erreur", JOptionPane.ERROR_MESSAGE);
+}
+
 
     }//GEN-LAST:event_updateButtonActionPerformed
 
@@ -391,13 +413,13 @@ String country = countryTextField.getText().trim();
             firstnameTextField.setText(usersTable.getValueAt(selectedRow, 1).toString());
             lastNameTextField.setText(usersTable.getValueAt(selectedRow, 2).toString());
             emailTextField.setText(usersTable.getValueAt(selectedRow, 3).toString());
-            countryTextField.setText(usersTable.getValueAt(selectedRow, 4).toString());
+            ageTextField.setText(usersTable.getValueAt(selectedRow, 4).toString());
         }
     }//GEN-LAST:event_usersTableMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
-    private javax.swing.JTextField countryTextField;
+    private javax.swing.JTextField ageTextField;
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField emailTextField;
     private javax.swing.JTextField firstnameTextField;

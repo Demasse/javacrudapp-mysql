@@ -18,12 +18,14 @@ public class UserDAO {
 
     // CREATE user
     public void insertUser(User user) {
-        String sql = "INSERT INTO users (first_name, last_name, email, country) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (first_name, last_name, email, age) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.getFirstName());
             stmt.setString(2, user.getLastName());
             stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getCountry());
+            stmt.setInt(4, user.getAge());
+
+            
 
             stmt.executeUpdate();
             JOptionPane.showMessageDialog(null, "Utilisateur ajouté avec succès ✅");
@@ -47,9 +49,9 @@ public class UserDAO {
                 String fName = rs.getString("first_name");
                 String lName = rs.getString("last_name");
                 String email = rs.getString("email");
-                String country = rs.getString("country");
+                 int age = rs.getInt("age");
 
-                users.add(new User(id, fName, lName ,email , country ));
+                users.add(new User(id, fName, lName ,email , age ));
             }
 
         } catch(SQLException e){
@@ -62,12 +64,12 @@ public class UserDAO {
     //update
     
 public int updateUser(User user) {
-    String sql = "UPDATE users SET first_name=?, last_name=?, email=?, country=? WHERE id=?";
+    String sql = "UPDATE users SET first_name=?, last_name=?, email=?, age=? WHERE id=?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setString(1, user.getFirstName());
         stmt.setString(2, user.getLastName());
         stmt.setString(3, user.getEmail());
-        stmt.setString(4, user.getCountry());
+        stmt.setInt(4, user.getAge());
         stmt.setInt(5, user.getId());
 
         int rowsUpdated = stmt.executeUpdate();
